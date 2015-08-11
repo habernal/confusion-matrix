@@ -35,15 +35,15 @@ public class ConfusionMatrix
 
     private int numberOfDecimalPlaces = 3;
 
-    private TreeSet<String> allGoldLabels = new TreeSet<String>();
+    private TreeSet<String> allGoldLabels = new TreeSet<>();
 
-    private TreeSet<String> allPredictedLabels = new TreeSet<String>();
+    private TreeSet<String> allPredictedLabels = new TreeSet<>();
 
-    private List<String> labelSeries = new ArrayList<String>();
+    private List<String> labelSeries = new ArrayList<>();
 
     public ConfusionMatrix()
     {
-        this.map = new TreeMap<String, Map<String, Integer>>();
+        this.map = new TreeMap<>();
 
     }
 
@@ -147,7 +147,7 @@ public class ConfusionMatrix
 
     public Map<String, Double> getPrecisionForLabels()
     {
-        Map<String, Double> precisions = new LinkedHashMap<String, Double>();
+        Map<String, Double> precisions = new LinkedHashMap<>();
         for (String label : allGoldLabels) {
             double precision = getPrecisionForLabel(label);
 
@@ -249,7 +249,7 @@ public class ConfusionMatrix
      */
     public Map<String, Double> getFMeasureForLabels()
     {
-        Map<String, Double> fMeasure = new LinkedHashMap<String, Double>();
+        Map<String, Double> fMeasure = new LinkedHashMap<>();
 
         Map<String, Double> precisionForLabels = getPrecisionForLabels();
         Map<String, Double> recallForLabels = getRecallForLabels();
@@ -278,7 +278,7 @@ public class ConfusionMatrix
      */
     public Map<String, Double> getFMeasureForLabels(double beta)
     {
-        Map<String, Double> fMeasure = new LinkedHashMap<String, Double>();
+        Map<String, Double> fMeasure = new LinkedHashMap<>();
 
         Map<String, Double> precisionForLabels = getPrecisionForLabels();
         Map<String, Double> recallForLabels = getRecallForLabels();
@@ -306,7 +306,7 @@ public class ConfusionMatrix
      */
     public Map<String, Double> getRecallForLabels()
     {
-        Map<String, Double> recalls = new LinkedHashMap<String, Double>();
+        Map<String, Double> recalls = new LinkedHashMap<>();
         for (String label : allGoldLabels) {
             double recall = getRecallForLabel(label);
 
@@ -468,23 +468,23 @@ public class ConfusionMatrix
             }
         }
 
-        List<List<String>> result = new ArrayList<List<String>>();
+        List<List<String>> result = new ArrayList<>();
 
-        List<String> allPredictedLabelsSorted = new ArrayList<String>();
-        TreeSet<String> extraPredictedLabels = new TreeSet<String>(allPredictedLabels);
+        List<String> allPredictedLabelsSorted = new ArrayList<>();
+        TreeSet<String> extraPredictedLabels = new TreeSet<>(allPredictedLabels);
         extraPredictedLabels.removeAll(allGoldLabels);
 
         allPredictedLabelsSorted.addAll(allGoldLabels);
         allPredictedLabelsSorted.addAll(extraPredictedLabels);
 
         // header
-        List<String> header = new ArrayList<String>();
+        List<String> header = new ArrayList<>();
         header.add("↓gold\\pred→");
         header.addAll(allPredictedLabelsSorted);
         result.add(header);
 
         for (String rowLabel : allGoldLabels) {
-            List<String> row = new ArrayList<String>();
+            List<String> row = new ArrayList<>();
             row.add(rowLabel);
 
             for (String predictedLabel : allPredictedLabelsSorted) {
@@ -554,7 +554,7 @@ public class ConfusionMatrix
                 String value = row.get(j);
 
                 if ((i == 0 || j == 0) && !value.isEmpty()) {
-                    sb.append("\\textbf{" + value + "} ");
+                    sb.append("\\textbf{").append(value).append("} ");
                 }
                 else {
                     sb.append(value);
@@ -715,10 +715,10 @@ public class ConfusionMatrix
             String[] lines = text.split("\n");
             String[] l = lines[0].split("\\s+");
 
-            List<String> labels = new ArrayList<String>();
-            for (int i = 0; i < l.length; i++) {
-                if (!l[i].isEmpty()) {
-                    labels.add(l[i]);
+            List<String> labels = new ArrayList<>();
+            for (String aL : l) {
+                if (!aL.isEmpty()) {
+                    labels.add(aL);
                 }
             }
 
@@ -729,10 +729,10 @@ public class ConfusionMatrix
 
                 String[] split = line.split("\\s+");
 
-                List<String> row = new ArrayList<String>();
-                for (int j = 0; j < split.length; j++) {
-                    if (!split[j].isEmpty()) {
-                        row.add(split[j]);
+                List<String> row = new ArrayList<>();
+                for (String aSplit : split) {
+                    if (!aSplit.isEmpty()) {
+                        row.add(aSplit);
                     }
                 }
 
@@ -801,23 +801,23 @@ public class ConfusionMatrix
             }
         }
 
-        List<List<String>> result = new ArrayList<List<String>>();
+        List<List<String>> result = new ArrayList<>();
 
-        List<String> allPredictedLabelsSorted = new ArrayList<String>();
-        TreeSet<String> extraPredictedLabels = new TreeSet<String>(allPredictedLabels);
+        List<String> allPredictedLabelsSorted = new ArrayList<>();
+        TreeSet<String> extraPredictedLabels = new TreeSet<>(allPredictedLabels);
         extraPredictedLabels.removeAll(allGoldLabels);
 
         allPredictedLabelsSorted.addAll(allGoldLabels);
         allPredictedLabelsSorted.addAll(extraPredictedLabels);
 
         // header
-        List<String> header = new ArrayList<String>();
+        List<String> header = new ArrayList<>();
         header.add("↓gold\\pred→");
         header.addAll(allPredictedLabelsSorted);
         result.add(header);
 
         for (String rowLabel : allGoldLabels) {
-            List<String> row = new ArrayList<String>();
+            List<String> row = new ArrayList<>();
             row.add(rowLabel);
 
             double rowSum = getRowSum(rowLabel);
@@ -845,7 +845,7 @@ public class ConfusionMatrix
      */
     public String toStringProbabilistic()
     {
-        List<List<String>> table = prepareToStringProbabilistic();
+        List<List<String>> table = getSymmetricConfusionMatrix().prepareToStringProbabilistic();
 
         return tableToString(table);
     }
