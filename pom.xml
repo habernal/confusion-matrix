@@ -20,6 +20,13 @@
 		<version>9</version>
 	</parent>
 
+	<developers>
+		<developer>
+			<name>Ivan Habernal</name>
+			<organizationUrl>https://github.com/habernal</organizationUrl>
+		</developer>
+	</developers>
+
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -29,7 +36,10 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/habernal/confusion-matrix</url>
+		<connection>scm:git:git@github.com:habernal/confusion-matrix.git</connection>
+		<developerConnection>scm:git:git@github.com:habernal/confusion-matrix.git
+		</developerConnection>
+		<url>git@github.com:habernal/confusion-matrix.git</url>
 	</scm>
 
 	<properties>
