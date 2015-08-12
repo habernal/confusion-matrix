@@ -129,22 +129,6 @@
 			</plugin>
 
 		</plugins>
-
-		<pluginManagement>
-			<plugins>
-				<!-- override version of GPG plugin to use new GPG signing features -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.5</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.4.2</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 
 </project>
