@@ -4,7 +4,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ivan Habernal
@@ -60,17 +64,14 @@ public class ConfusionMatrixTest
     public void testPrecision()
             throws Exception
     {
-        assertEquals(0.86,
-                confusionMatrix.getPrecisionForLabels().get("neg"),
-                0.01);
+        assertEquals(0.86, confusionMatrix.getPrecisionForLabels().get("neg"), 0.01);
     }
 
     @Test
     public void testRecall()
             throws Exception
     {
-        assertEquals(0.78,
-                confusionMatrix.getRecallForLabels().get("neg"), 0.01);
+        assertEquals(0.78, confusionMatrix.getRecallForLabels().get("neg"), 0.01);
     }
 
     @Test
@@ -564,5 +565,135 @@ public class ConfusionMatrixTest
 
         System.out.println(cm.toStringProbabilistic());
 
+    }
+
+    /*
+     * Testing on tables from
+     * Cinkova, S., Holub, M., & Kriz, V. (2012). Managing Uncertainty in Semantic Tagging.
+     * In Proceedings of the 13th Conference of the European Chapter of the Association for
+     * Computational Linguistics (pp. 840–850). Avignon, France: Association for Computational
+     * Linguistics. Retrieved from http://www.aclweb.org/anthology/E12-1085
+     */
+    @Test
+    public void testProbabilityConfusionMatrixCinkovaEtAl2012()
+            throws Exception
+    {
+        ConfusionMatrix a1vsa2 = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n1 29 1 1 0 0\n1.a 0 1 0 0 0\n2 0 1 11 0 0\n4 0 0 0 2 0\n5 0 0 0 3 1");
+
+        ConfusionMatrix a1vsa3 = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n1 29 2 0 0 0\n1.a 1 0 0 0 0\n2 0 0 12 0 0\n4 0 0 0 1 1\n5 0 0 0 0 4");
+
+        ConfusionMatrix a2vsa3 = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n1 27 2 0 0 0\n1.a 2 0 1 0 0\n2 1 0 11 0 0\n4 0 0 0 1 4\n5 0 0 0 0 1");
+
+        ConfusionMatrix cm = ConfusionMatrix
+                .createCumulativeMatrix(a1vsa2.getSymmetricConfusionMatrix(),
+                        a1vsa3.getSymmetricConfusionMatrix(), a2vsa3.getSymmetricConfusionMatrix());
+
+        // Table 2a: Aggregated Confusion Matrix
+        // from Cinkova et al., 2012
+        ConfusionMatrix expected = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n 1 85 8 2 0 0\n 1.a 8 1 2 0 0\n 2 2 2 34 0 0\n"
+                        + " 4 0 0 0 4 8\n 5 0 0 0 8 6");
+
+        assertEquals(expected.toString(), cm.toString());
+
+        // Table 4: Confusion Probability Matrix
+        List<List<String>> prepareToStringProbabilistic = cm.prepareToStringProbabilistic();
+
+        assertEquals(Arrays.asList("1", "0.895", "0.084", "0.021", "0.000", "0.000"),
+                prepareToStringProbabilistic.get(1));
+        assertEquals(Arrays.asList("1.a", "0.727", "0.091", "0.182", "0.000", "0.000"),
+                prepareToStringProbabilistic.get(2));
+        assertEquals(Arrays.asList("2", "0.053", "0.053", "0.895", "0.000", "0.000"),
+                prepareToStringProbabilistic.get(3));
+        assertEquals(Arrays.asList("4", "0.000", "0.000", "0.000", "0.333", "0.667"),
+                prepareToStringProbabilistic.get(4));
+        assertEquals(Arrays.asList("5", "0.000", "0.000", "0.000", "0.571", "0.429"),
+                prepareToStringProbabilistic.get(5));
+    }
+
+    @Test
+    public void testNegativeUnitMatrix()
+            throws Exception
+    {
+        ConfusionMatrix cm1 = new ConfusionMatrix();
+        cm1.increaseValue("1", "1", 1);
+        cm1.increaseValue("1", "2", 2);
+        cm1.increaseValue("2", "1", 3);
+        cm1.increaseValue("2", "2", 4);
+
+        ConfusionMatrix negativeUnitMatrix = cm1.getNegativeUnitMatrix();
+
+        assertTrue(-1 == negativeUnitMatrix.map.get("1").get("1"));
+        assertTrue(0 == negativeUnitMatrix.map.get("1").get("2"));
+        assertTrue(0 == negativeUnitMatrix.map.get("2").get("1"));
+        assertTrue(-4 == negativeUnitMatrix.map.get("2").get("2"));
+    }
+
+    /*
+     * Transposing confusion matrix from Table 3: A1 vs. A2 from
+     * Cinkova, S., Holub, M., & Kriz, V. (2012). Managing Uncertainty in Semantic Tagging.
+     * In Proceedings of the 13th Conference of the European Chapter of the Association for
+     * Computational Linguistics (pp. 840–850). Avignon, France: Association for Computational
+     * Linguistics. Retrieved from http://www.aclweb.org/anthology/E12-1085
+     */
+    @Test
+    public void testTransposedMatrix()
+            throws Exception
+    {
+        ConfusionMatrix a1vsa2 = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n1 29 1 1 0 0\n1.a 0 1 0 0 0\n2 0 1 11 0 0\n4 0 0 0 2 0\n5 0 0 0 3 1");
+        System.out.println(a1vsa2);
+
+        ConfusionMatrix t = a1vsa2.getTransposedMatrix();
+
+        assertEquals(29, (long) t.map.get("1").get("1"));
+        assertEquals(0, (long) t.map.get("1").get("1.a"));
+        assertEquals(0, (long) t.map.get("1").get("2"));
+        assertEquals(0, (long) t.map.get("1").get("4"));
+        assertEquals(0, (long) t.map.get("1").get("5"));
+
+        assertEquals(1, (long) t.map.get("1.a").get("1"));
+        assertEquals(1, (long) t.map.get("2").get("1"));
+        assertEquals(0, (long) t.map.get("4").get("1"));
+        assertEquals(0, (long) t.map.get("5").get("1"));
+
+        assertEquals(0, (long) t.map.get("4").get("1"));
+        assertEquals(0, (long) t.map.get("4").get("1.a"));
+        assertEquals(0, (long) t.map.get("4").get("2"));
+        assertEquals(2, (long) t.map.get("4").get("4"));
+        assertEquals(3, (long) t.map.get("4").get("5"));
+    }
+
+    @Test
+    public void testSymmetricConfusionMatrixA1A2()
+            throws Exception
+    {
+        ConfusionMatrix a1vsa2 = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n1 29 1 1 0 0\n1.a 0 1 0 0 0\n2 0 1 11 0 0\n4 0 0 0 2 0\n5 0 0 0 3 1");
+        System.out.println(a1vsa2);
+
+        ConfusionMatrix s = a1vsa2.getSymmetricConfusionMatrix();
+
+        assertEquals(1, (long) s.map.get("1.a").get("1"));
+        assertEquals(1, (long) s.map.get("1").get("1.a"));
+        assertEquals(29, (long) s.map.get("1").get("1"));
+    }
+
+    @Test
+    public void testSymmetricConfusionMatrixA1A3()
+            throws Exception
+    {
+        ConfusionMatrix a1vsa3 = ConfusionMatrix.parseFromText(
+                "1 1.a 2 4 5\n1 29 2 0 0 0\n1.a 1 0 0 0 0\n2 0 0 12 0 0\n4 0 0 0 1 1\n5 0 0 0 0 4");
+        System.out.println(a1vsa3);
+        ConfusionMatrix s = a1vsa3.getSymmetricConfusionMatrix();
+        System.out.println(s);
+
+        assertEquals(3, (long) s.map.get("1.a").get("1"));
+        assertEquals(3, (long) s.map.get("1").get("1.a"));
+        assertEquals(29, (long) s.map.get("1").get("1"));
     }
 }

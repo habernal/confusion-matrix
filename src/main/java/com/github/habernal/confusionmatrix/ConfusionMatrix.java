@@ -27,19 +27,21 @@ import java.util.*;
 public class ConfusionMatrix
 {
 
-    int total = 0;
+    protected int total = 0;
 
-    int correct = 0;
+    protected int correct = 0;
 
-    private Map<String, Map<String, Integer>> map;
+    protected Map<String, Map<String, Integer>> map;
 
-    private int numberOfDecimalPlaces = 3;
+    protected int numberOfDecimalPlaces = 3;
 
-    private TreeSet<String> allGoldLabels = new TreeSet<>();
+    protected TreeSet<String> allGoldLabels = new TreeSet<>();
 
-    private TreeSet<String> allPredictedLabels = new TreeSet<>();
+    protected TreeSet<String> allPredictedLabels = new TreeSet<>();
 
-    private List<String> labelSeries = new ArrayList<>();
+    protected List<String> labelSeries = new ArrayList<>();
+
+    private Locale locale = Locale.ENGLISH;
 
     public ConfusionMatrix()
     {
@@ -55,6 +57,15 @@ public class ConfusionMatrix
         }
 
         this.numberOfDecimalPlaces = numberOfDecimalPlaces;
+    }
+
+    public void setLocale(Locale locale)
+    {
+        this.locale = locale;
+    }
+
+    private Locale getLocale() {
+        return locale;
     }
 
     private String getFormat()
@@ -575,8 +586,9 @@ public class ConfusionMatrix
     public String printNiceResults()
     {
         return "Macro F-measure: " + String.format(Locale.ENGLISH, getFormat(), getMacroFMeasure())
-                + ", (CI at .95: " + String.format(Locale.ENGLISH, getFormat(),
-                getConfidence95MacroFM()) + "), micro F-measure (acc): " + String
+                + ", (CI at .95: " + String
+                .format(Locale.ENGLISH, getFormat(), getConfidence95MacroFM())
+                + "), micro F-measure (acc): " + String
                 .format(Locale.ENGLISH, getFormat(), getMicroFMeasure());
     }
 
@@ -683,7 +695,15 @@ public class ConfusionMatrix
         return result;
     }
 
-    private ConfusionMatrix getNegativeUnitMatrix()
+    /**
+     * Returns unit matrix (identity matrix) with all diagonal values negative and non-diagonal zeros
+     * <pre>
+     * (- 1) * In
+     * </pre>
+     *
+     * @return negative unit matrix
+     */
+    protected ConfusionMatrix getNegativeUnitMatrix()
     {
         ConfusionMatrix result = new ConfusionMatrix();
 
@@ -691,8 +711,13 @@ public class ConfusionMatrix
             for (Map.Entry<String, Integer> predicted : gold.getValue().entrySet()) {
                 int value = predicted.getValue();
 
+                // negative value on diagonal
                 if (gold.getKey().equals(predicted.getKey())) {
                     result.increaseValue(gold.getKey(), predicted.getKey(), -value);
+                }
+                else {
+                    // zeros elsewhere
+                    result.increaseValue(gold.getKey(), predicted.getKey(), 0);
                 }
             }
         }
@@ -769,11 +794,11 @@ public class ConfusionMatrix
             int rowSum = getRowSum(goldLabel);
             int colSum = getColSum(goldLabel);
 
-            sb.append(String.format(Locale.ENGLISH, "%s\t%d\t%.1f",
-                    goldLabel, rowSum, (double) rowSum / (double) getTotalSum() * 100.0));
+            sb.append(String.format(Locale.ENGLISH, "%s\t%d\t%.1f", goldLabel, rowSum,
+                    (double) rowSum / (double) getTotalSum() * 100.0));
             sb.append("%\t");
-            sb.append(String.format(Locale.ENGLISH, "%d\t%.1f",
-                    colSum, (double) colSum / (double) getTotalSum() * 100.0));
+            sb.append(String.format(Locale.ENGLISH, "%d\t%.1f", colSum,
+                    (double) colSum / (double) getTotalSum() * 100.0));
             sb.append("%\n");
         }
         sb.append(String.format(Locale.ENGLISH, "Sum\t%d%n", getTotalSum()));
@@ -786,7 +811,7 @@ public class ConfusionMatrix
      *
      * @return table
      */
-    private List<List<String>> prepareToStringProbabilistic()
+    protected List<List<String>> prepareToStringProbabilistic()
     {
         // adding zeros
         for (String row : allGoldLabels) {
@@ -829,7 +854,7 @@ public class ConfusionMatrix
                         .containsKey(predictedLabel)) {
                     value = this.map.get(rowLabel).get(predictedLabel) / rowSum;
                 }
-                row.add(String.format(getFormat(), value));
+                row.add(String.format(locale, getFormat(), value));
             }
 
             result.add(row);
@@ -845,7 +870,7 @@ public class ConfusionMatrix
      */
     public String toStringProbabilistic()
     {
-        List<List<String>> table = getSymmetricConfusionMatrix().prepareToStringProbabilistic();
+        List<List<String>> table = prepareToStringProbabilistic();
 
         return tableToString(table);
     }
