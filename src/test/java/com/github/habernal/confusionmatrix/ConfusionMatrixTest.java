@@ -696,4 +696,110 @@ public class ConfusionMatrixTest
         assertEquals(3, (long) s.map.get("1").get("1.a"));
         assertEquals(29, (long) s.map.get("1").get("1"));
     }
+
+    /**
+     * Table 1 from Forman, G., & Scholz, M. (2010). Apples-to-Apples in Cross-Validation Studies:
+     * Pitfalls in Classifier Performance Measurement. ACM SIGKDD Explorations Newsletter, 12(1),
+     * 49–57.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testApplesToApples()
+            throws Exception
+    {
+        ConfusionMatrix f1 = new ConfusionMatrix();
+        f1.increaseValue("pos", "pos", 3);
+        f1.increaseValue("neg", "neg", 373);
+        double pf1 = f1.getPrecisionForLabel("pos");
+        double rf1 = f1.getRecallForLabel("pos");
+        double fmf1 = f1.getFMeasureForLabels().get("pos");
+
+        System.out.println("------\nFold 1 confusion matrix");
+        System.out.println(f1);
+        System.out.println("Precision (pos): " + pf1);
+        System.out.println("Recall (pos): " + rf1);
+        System.out.println("F-measure (pos): " + fmf1);
+
+        ConfusionMatrix f2 = new ConfusionMatrix();
+        f2.increaseValue("pos", "pos", 4);
+        f2.increaseValue("neg", "pos", 1);
+        f2.increaseValue("neg", "neg", 372);
+        double pf2 = f2.getPrecisionForLabel("pos");
+        double rf2 = f2.getRecallForLabel("pos");
+        double fmf2 = f2.getFMeasureForLabels().get("pos");
+
+        System.out.println("------\nFold 2 confusion matrix");
+        System.out.println(f2);
+        System.out.println("Precision (pos): " + pf2);
+        System.out.println("Recall (pos): " + rf2);
+        System.out.println("F-measure (pos): " + fmf2);
+
+        ConfusionMatrix f3 = new ConfusionMatrix();
+        f3.increaseValue("pos", "pos", 4);
+        f3.increaseValue("neg", "pos", 13);
+        f3.increaseValue("neg", "neg", 372);
+        double pf3 = f3.getPrecisionForLabel("pos");
+        double rf3 = f3.getRecallForLabel("pos");
+        double fmf3 = f3.getFMeasureForLabels().get("pos");
+
+        System.out.println("------\nFold 3 confusion matrix");
+        System.out.println(f3);
+        System.out.println("Precision (pos): " + pf3);
+        System.out.println("Recall (pos): " + rf3);
+        System.out.println("F-measure (pos): " + fmf3);
+
+        ConfusionMatrix f4 = new ConfusionMatrix();
+        f4.increaseValue("pos", "pos", 3);
+        f4.increaseValue("pos", "neg", 1);
+        f4.increaseValue("neg", "pos", 5);
+        f4.increaseValue("neg", "neg", 372);
+        double pf4 = f4.getPrecisionForLabel("pos");
+        double rf4 = f4.getRecallForLabel("pos");
+        double fmf4 = f4.getFMeasureForLabels().get("pos");
+
+        System.out.println("------\nFold 4 confusion matrix");
+        System.out.println(f4);
+        System.out.println("Precision (pos): " + pf4);
+        System.out.println("Recall (pos): " + rf4);
+        System.out.println("F-measure (pos): " + fmf4);
+
+        // average f-measure
+        double fAvg = (fmf1 + fmf2 + fmf3 + fmf4) / 4.0;
+        System.out.println("F_avg: " + fAvg);
+
+        // average precision and recall first
+        double pAvg = (pf1 + pf2 + pf3 + pf4) / 4.0;
+        double rAvg = (rf1 + rf2 + rf3 + rf4) / 4.0;
+        System.out.println("Average precision: " + pAvg);
+        System.out.println("Average recall: " + rAvg);
+        // compute F-measure
+        double fPrRe = (2 * pAvg * rAvg) / (pAvg + rAvg);
+        System.out.println("F_pr,re: " + fPrRe);
+
+        // and single confusion matrix only
+        ConfusionMatrix cm = new ConfusionMatrix();
+        cm.increaseValue("pos", "pos", 3);
+        cm.increaseValue("neg", "neg", 373);
+        cm.increaseValue("pos", "pos", 4);
+        cm.increaseValue("neg", "pos", 1);
+        cm.increaseValue("neg", "neg", 372);
+        cm.increaseValue("pos", "pos", 4);
+        cm.increaseValue("neg", "pos", 13);
+        cm.increaseValue("neg", "neg", 372);
+        cm.increaseValue("pos", "pos", 3);
+        cm.increaseValue("pos", "neg", 1);
+        cm.increaseValue("neg", "pos", 5);
+        cm.increaseValue("neg", "neg", 372);
+        double p = cm.getPrecisionForLabel("pos");
+        double r = cm.getRecallForLabel("pos");
+        double fm = cm.getFMeasureForLabels().get("pos");
+
+        System.out.println("------\nCombined confusion matrix");
+        System.out.println(cm);
+        System.out.println("Precision (pos): " + p);
+        System.out.println("Recall (pos): " + r);
+        System.out.println("F-measure (pos) F_tp,fp: " + fm);
+
+    }
 }
