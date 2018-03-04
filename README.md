@@ -48,4 +48,4 @@ System.out.println(cm.getRecallForLabels());
 System.out.println(cm.printNiceResults());
 ```
 
-For other examples, see the JUnit Test in `com.github.habernal.confusionmatrix.ConfusionMatrixTest`
+For other examples, see the JUnit Test in [`ConfusionMatrixTest`](https://github.com/habernal/confusion-matrix/blob/master/src/test/java/com/github/habernal/confusionmatrix/ConfusionMatrixTest.java) class.
