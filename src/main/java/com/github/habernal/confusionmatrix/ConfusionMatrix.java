@@ -188,7 +188,7 @@ public class ConfusionMatrix
     /**
      * Micro-averaged F-measure gives equal weight to each document and is therefore
      * considered as an average over all the document/category pairs. It tends to be
-     * dominated by the classifierâ€™s performance on common categories. (It's actually the accuracy).
+     * dominated by the classifier's performance on common categories. (It's actually the accuracy).
      * <p/>
      * (from Ozgur et al., 2005. Text Categorization with Class-Based and Corpus-Based Keyword Selection.)
      *
